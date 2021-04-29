@@ -40,3 +40,29 @@
 - **要尽可能避免递归函数中调用其他递归函数**，如果出现这种情况，大概率是代码实现有瑕疵，可以进行优化来避免递归套递归(leetcode-1373)；**利用一个函数，将所有辅助函数做的事情做掉**
 
 - Java比较字符串，String 用**equal**方法，不用等号
+- 递归灵魂三问？
+  - 1、这个函数是干嘛的？
+  - 2、这个函数参数中的变量是什么的是什么？
+  - 3、得到函数的递归结果，你应该干什么？
+
+- LCA
+  
+  ```java
+  public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == p || root == q)
+            return root;
+        if (root == null)
+            return null;
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        // 递归基返回值决定一定是p或q
+        if (left != null && right != null)
+            return root;
+        if (left == null && right == null)
+            return null;
+        return left == null ? right : left;
+    }
+  ```
+
+- 一棵完全二叉树的两棵子树，至少有一棵是满二叉树，leetcode-222
+- 
