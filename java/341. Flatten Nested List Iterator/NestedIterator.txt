@@ -1,0 +1,35 @@
+import java.util.*;
+
+public class NestedIterator implements Iterator<Integer> {
+
+    private Iterator<Integer> it;
+    private List<Integer> result;
+
+    public NestedIterator(List<NestedInteger> nestedList) {
+        this.result = new LinkedList<>();
+        for (NestedInteger node : nestedList) {
+            traverse(node);
+        }
+        it = result.iterator();
+    }
+
+    @Override
+    public Integer next() {
+        return it.next();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return it.hasNext();
+    }
+
+    public void traverse(NestedInteger root) {
+        if (root.isInteger()) {
+            result.add(root.getInteger());
+            return;
+        }
+        for (NestedInteger child : root.getList()) {
+            traverse(child);
+        }
+    }
+}
