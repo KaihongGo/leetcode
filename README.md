@@ -119,9 +119,6 @@ ListNode reverseN(ListNode head, int n) {
   ```
 
 - 一棵完全二叉树的两棵子树，至少有一棵是满二叉树，leetcode-222
-
-
-
 ## 手把手设计数据结构
 
 ### Union-Find 算法详解
@@ -209,4 +206,45 @@ class UF {
 
 * 方向数组 d 是上下左右搜索的常用手法：`  int[][] d = new int[][]{{1,0}, {0,1}, {0,-1}, {-1,0}};`
 
+### LRU算法
+
+
+
+### LFU算法
+
+```java
+class LFUCache {
+    // key 到 val 的映射，我们后文称为 KV 表
+    HashMap<Integer, Integer> keyToVal;
+    // key 到 freq 的映射，我们后文称为 KF 表
+    HashMap<Integer, Integer> keyToFreq;
+    // freq 到 key 列表的映射，我们后文称为 FK 表
+    HashMap<Integer, LinkedHashSet<Integer>> freqToKeys;
+    // 记录最小的频次
+    int minFreq;
+    // 记录 LFU 缓存的最大容量
+    int cap;
+
+    public LFUCache(int capacity) {}
+
+    public int get(int key) {}
+
+    public void put(int key, int val) {}
+	
+    private void increaseFreq(int key) {}
     
+    private void removeMinFreqKey() {}
+}
+```
+
+`LinkedHashSet`数据结构
+
+```java
+freqToKeys.putIfAbsent(1, new LinkedHashSet<>());
+freqToKeys.get(1).add(key);
+```
+
+> **思路**：利用多个相互关联的**映射**
+
+### 最大栈
+
