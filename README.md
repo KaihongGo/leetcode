@@ -248,3 +248,211 @@ freqToKeys.get(1).add(key);
 
 ### 最大栈
 
+# 第零章 必读文章
+
+## 二分搜索
+
+### 零 二分查找框架
+
+```java
+int binarySearch(int[] nums, int target) {
+    int left = 0, right = ...;
+    while(...) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] == target) {
+            ...
+        } else if (nums[mid] < target) {
+            left = ...;
+        } else if (nums[mid] > target) {
+            right = ...;
+        }
+    }
+    return ...;
+}
+```
+
+### 一 寻找一个数（基本的二分搜索）
+
+```java
+int binarySearch(int[] nums, int target) {
+    int left = 0;
+    int right = nums.length-1;
+    while(left <= right) {
+        int mid = left + (right - left) / 2;
+        if(nums[mid] == target) {
+            return mid;
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            right = mid - 1;
+        }
+    }
+    return -1;
+}
+```
+
+判定搜索区间`[left, right]`
+
+### 二 寻找左侧边界的二分搜索
+
+```java
+int left_bound(int[] nums, int target) {
+    if (nums.length == 0) return -1;
+    int left = 0;
+    int right = nums.length; // 判定搜索区间 [left, right)
+    while (left < right) {	 // 依据搜索区间判定终止条件
+        int mid = (left + right) / 2;
+        if (nums[mid] == target) {
+            right = mid;	// 能够搜索左侧的关键
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            right = mid;
+        }
+    }
+    return left;
+}
+```
+
+「左侧边界」有什么特殊含义：
+
+比如对于有序数组 `nums = [2,3,5,7]`, `target = 1`，算法会返回 0，含义是：`nums` 中小于 1 的元素有 0 个。
+
+再比如说 `nums = [2,3,5,7], target = 8`，算法会返回 4，含义是：`nums` 中小于 8 的元素有 4 个。
+
+综上可以看出，函数的返回值（即 `left` 变量的值）取值区间是闭区间 `[0, nums.length]`，所以我们简单添加两行代码就能在正确的时候 return -1：
+
+```java
+while (left < right) {
+    //...
+}
+// target 比所有数都大
+if (left == nums.length) return -1;
+// 类似之前算法的处理方式
+return nums[left] == target ? left : -1;
+```
+
+**为什么该算法能够搜索左侧边界**？
+
+答：关键在于对于 `nums[mid] == target` 这种情况的处理：
+
+
+
+```
+    if (nums[mid] == target)
+        right = mid;
+```
+
+可见，找到 target 时不要立即返回，而是缩小「搜索区间」的上界 `right`，在区间 `[left, mid)` 中继续搜索，即不断向左收缩，达到锁定左侧边界的目的。
+
+**统一**
+
+```java
+int left_bound(int[] nums, int target) {
+    int left = 0, right = nums.length - 1;
+    // 搜索区间为 [left, right]
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] < target) {
+            // 搜索区间变为 [mid+1, right]
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            // 搜索区间变为 [left, mid-1]
+            right = mid - 1;
+        } else if (nums[mid] == target) {
+            // 收缩右侧边界
+            right = mid - 1;
+        }
+    }
+    // 检查出界情况
+    if (left >= nums.length || nums[left] != target)
+        return -1;
+    return left;
+}
+```
+
+### 三 寻找右侧边界的二分查找
+
+```java
+int right_bound(int[] nums, int target) {
+    int left = 0;
+    int right = nums.length;
+    while (left < right) {
+        int mid = (left + right) / 2;
+        if (nums[mid] == target) {
+            left = mid + 1;
+        } else if (nums[mid] < target) {
+            left = mid+ + 1;
+        } else if (nums[mid] > target) {
+            right = mid;
+        }
+    }
+    return left - 1; // 注意
+}
+```
+
+**为什么最后返回** **`left - 1`** **而不像左侧边界的函数，返回** **`left`****？而且我觉得这里既然是搜索右侧边界，应该返回** **`right`** **才对**。
+
+答：首先，while 循环的终止条件是 `left == right`，所以 `left` 和 `right` 是一样的，你非要体现右侧的特点，返回 `right - 1` 好了。
+
+至于为什么要减一，这是搜索右侧边界的一个特殊点，关键在这个条件判断：
+
+
+
+```
+if (nums[mid] == target) {
+    left = mid + 1;
+    // 这样想: mid = left - 1
+```
+
+![img](https://gblobscdn.gitbook.com/assets%2F-McgKdLMgKGHf9UIOZCM%2Fsync%2Fa360ba87672e68434224884dfc1393a6039f8130.jpg?alt=media)
+
+因为我们对 `left` 的更新必须是 `left = mid + 1`，就是说 while 循环结束时，`nums[left]` 一定不等于 `target` 了，而 `nums[left-1]` 可能是 `target`。
+
+至于为什么 `left` 的更新必须是 `left = mid + 1`，同左侧边界搜索，就不再赘述。
+
+**统一**
+
+```java
+int right_bound(int[] nums, int target) {
+    int left = 0, right = nums.length - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] < target) {
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            right = mid - 1;
+        } else if (nums[mid] == target) {
+            // 这里改成收缩左侧边界即可
+            left = mid + 1;
+        }
+    }
+    // 这里改为检查 right 越界的情况，见下图
+    if (right < 0 || nums[right] != target)
+        return -1;
+    return right;
+}
+```
+
+**第一个，最基本的二分查找算法**：
+
+```
+因为我们初始化 right = nums.length - 1所以决定了我们的「搜索区间」是 [left, right]所以决定了 while (left <= right)同时也决定了 left = mid+1 和 right = mid-1
+因为我们只需找到一个 target 的索引即可所以当 nums[mid] == target 时可以立即返回
+```
+
+**第二个，寻找左侧边界的二分查找**：
+
+```
+因为我们初始化 right = nums.length所以决定了我们的「搜索区间」是 [left, right)所以决定了 while (left < right)同时也决定了 left = mid + 1 和 right = mid
+因为我们需找到 target 的最左侧索引所以当 nums[mid] == target 时不要立即返回而要收紧右侧边界以锁定左侧边界
+```
+
+**第三个，寻找右侧边界的二分查找**：
+
+```
+因为我们初始化 right = nums.length所以决定了我们的「搜索区间」是 [left, right)所以决定了 while (left < right)同时也决定了 left = mid + 1 和 right = mid
+因为我们需找到 target 的最右侧索引所以当 nums[mid] == target 时不要立即返回而要收紧左侧边界以锁定右侧边界
+又因为收紧左侧边界时必须 left = mid + 1所以最后无论返回 left 还是 right，必须减一
+```
+
